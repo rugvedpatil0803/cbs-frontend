@@ -41,8 +41,13 @@ const Header = () => {
   return (
     <div
       style={{
+        position: "fixed",       // ✅ makes it fixed
+        top: 0,                  // ✅ stick to top
+        left: 0,
+        width: "100%",           // ✅ full width
         height: "60px",
-        background: "linear-gradient(135deg, #1e3a8a, #6d28d9)", // bluish → purplish
+        zIndex: 1000,            // ✅ stay above everything
+        background: "linear-gradient(135deg, #1e3a8a, #6d28d9)",
         color: "#e2e8f0",
         display: "flex",
         justifyContent: "space-between",
@@ -50,7 +55,6 @@ const Header = () => {
         padding: "0 24px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
         backdropFilter: "blur(6px)",
-        borderRadius: "12px",
       }}
     >
       {/* Left Side */}
@@ -96,12 +100,12 @@ const Header = () => {
         letterSpacing: "0.5px",
         }}
     >
-        Hi, {firstName} {lastName}
+        Hi, {firstName} {lastName} 👋
     </div>
     </div>
 
       {/* Right Side */}
-      <div style={{ display: "flex", gap: "18px", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: "18px", alignItems: "center",paddingRight: "35px", }}>
         
         {/* 📅 Date & Time */}
         <div
