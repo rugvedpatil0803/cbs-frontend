@@ -1,32 +1,54 @@
 import axios from "axios";
+import type { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { decryptData, encryptData } from "../utils/cryptoUtils";
+
+// const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = 'http://localhost:8080/api'
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: BASE_URL,
   withCredentials: true,
+  timeout: 15000,
 });
 
 // 🔁 Refresh control
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-// Process queued requests
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error);
     else prom.resolve(token);
   });
-  failedQueue = [];
+  failedQueue = []; 
 };
 
 // ==========================
 // ✅ REQUEST INTERCEPTOR
 // ==========================
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+  (config: InternalAxiosRequestConfig) => {
+    const encryptedToken = localStorage.getItem("token");
+
+    // 🔓 Decrypt token before sending
+    const token = encryptedToken ? decryptData(encryptedToken) : null;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // 🚫 NO CACHE
+    config.headers["Cache-Control"] =
+      "no-cache, no-store, must-revalidate";
+    config.headers["Pragma"] = "no-cache";
+    config.headers["Expires"] = "0";
+
+    // 🔥 Prevent caching (GET)
+    if (config.method === "get") {
+      config.params = {
+        ...(config.params || {}),
+        ts: Date.now(),
+      };
     }
 
     return config;
@@ -39,14 +61,12 @@ apiClient.interceptors.request.use(
 // ==========================
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
 
-    // ❗ If token expired (401)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+  async (error: AxiosError) => {
+    const originalRequest: any = error.config;
 
+    if (error.response?.status === 401 && !originalRequest?._retry) {
       if (isRefreshing) {
-        // Queue requests while refreshing
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then((token) => {
@@ -58,31 +78,29 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem("refreshToken");
+      const encryptedRefresh = localStorage.getItem("refreshToken");
+      const refreshToken = encryptedRefresh
+        ? decryptData(encryptedRefresh)
+        : null;
 
       try {
-        // 🔁 Call refresh API
-        const res = await axios.post(
-          "http://localhost:8080/auth/refresh",
-          { refreshToken }
-        );
+        const res = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refreshToken,
+        });
 
-        const newToken = res.data.data.token;
+        const newToken = res.data?.data?.token;
 
-        // ✅ Save new token
-        localStorage.setItem("token", newToken);
+        // 🔐 Store encrypted token
+        localStorage.setItem("token", encryptData(newToken));
 
-        // ✅ Retry all failed requests
         processQueue(null, newToken);
 
-        // Retry original request
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return apiClient(originalRequest);
 
       } catch (err) {
         processQueue(err, null);
 
-        // ❌ Logout if refresh fails
         localStorage.clear();
         window.location.href = "/login";
 
