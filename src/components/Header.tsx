@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { FaHome } from "react-icons/fa";
 import SwitchRole from "./SwitchRole";
+import { redirectToDashboard } from "../utils/navigationUtils";
+import Swal from "sweetalert2";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -10,7 +13,6 @@ const Header = () => {
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // ⏱️ Update time every second
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
@@ -19,9 +21,42 @@ const Header = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#334155",
+      confirmButtonText: "Yes, Logout",
+    });
+
+    if (result.isConfirmed) {
+      // 🔵 Optional loader
+      Swal.fire({
+        title: "Logging out...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      setTimeout(() => {
+        localStorage.clear();
+        Swal.close();
+        navigate("/login");
+      }, 800); // smooth UX
+    }
+  };
+
+  // 🏠 Home click handler
+  const handleHomeClick = () => {
+    const activeRole = localStorage.getItem("activeRole");
+
+    if (activeRole) {
+      redirectToDashboard(activeRole, navigate);
+    } else {
+      navigate("/login");
+    }
   };
 
   // Format date & time
@@ -36,17 +71,18 @@ const Header = () => {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    hour12: false,
   });
 
   return (
     <div
       style={{
-        position: "fixed",       // ✅ makes it fixed
-        top: 0,                  // ✅ stick to top
+        position: "fixed",
+        top: 0,
         left: 0,
-        width: "100%",           // ✅ full width
+        width: "100%",
         height: "60px",
-        zIndex: 1000,            // ✅ stay above everything
+        zIndex: 1000,
         background: "linear-gradient(135deg, #1e3a8a, #6d28d9)",
         color: "#e2e8f0",
         display: "flex",
@@ -57,56 +93,55 @@ const Header = () => {
         backdropFilter: "blur(6px)",
       }}
     >
-      {/* Left Side */}
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  }}
->
-  {/* 👤 Profile Circle */}
-  <div
-    onClick={() => navigate("/user-profile")}
-    style={{
-      width: "36px",
-      height: "36px",
-      borderRadius: "50%",
-      background: "rgba(255,255,255,0.2)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      fontWeight: "bold",
-      color: "#fff",
-      transition: "all 0.2s ease",
-    }}
-    onMouseOver={(e) =>
-      (e.currentTarget.style.background = "rgba(255,255,255,0.35)")
-    }
-    onMouseOut={(e) =>
-      (e.currentTarget.style.background = "rgba(255,255,255,0.2)")
-    }
-  >
-    {/* You can later replace with image */}
-    {firstName?.charAt(0)}
-  </div>
+      {/* LEFT SIDE */}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* 👤 Profile Circle */}
+        <div
+          onClick={() => navigate("/user-profile")}
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontWeight: "bold",
+            color: "#fff",
+            transition: "all 0.2s ease",
+          }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.35)")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.2)")
+          }
+        >
+          {firstName?.charAt(0)}
+        </div>
 
-  {/* 👋 Greeting */}
-    <div
+        {/* 👋 Greeting */}
+        <div
+          style={{
+            fontSize: "18px",
+            fontWeight: "500",
+            letterSpacing: "0.5px",
+          }}
+        >
+          Hi, {firstName} {lastName} 👋
+        </div>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <div
         style={{
-        fontSize: "18px",
-        fontWeight: "500",
-        letterSpacing: "0.5px",
+          display: "flex",
+          gap: "18px",
+          alignItems: "center",
+          paddingRight: "35px",
         }}
-    >
-        Hi, {firstName} {lastName} 👋
-    </div>
-    </div>
-
-      {/* Right Side */}
-      <div style={{ display: "flex", gap: "18px", alignItems: "center",paddingRight: "35px", }}>
-        
+      >
         {/* 📅 Date & Time */}
         <div
           style={{
@@ -123,9 +158,35 @@ const Header = () => {
           <span style={{ fontWeight: "600" }}>{formattedTime}</span>
         </div>
 
+        {/* 🏠 Home Icon */}
+        <div
+          onClick={handleHomeClick}
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "8px",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.3)")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.background = "rgba(255,255,255,0.15)")
+          }
+          title="Go to Dashboard"
+        >
+          <FaHome color="white" size={16} />
+        </div>
+
+        {/* 🔽 Role Switch */}
         <SwitchRole />
 
-        {/* Logout */}
+        {/* 🚪 Logout */}
         <button
           onClick={handleLogout}
           style={{
@@ -139,8 +200,8 @@ const Header = () => {
             transition: "all 0.2s ease",
             boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
           }}
-          onMouseOver={(e) => (e.target.style.opacity = "0.9")}
-          onMouseOut={(e) => (e.target.style.opacity = "1")}
+          onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
+          onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
         >
           Logout
         </button>

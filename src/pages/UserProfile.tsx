@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+
 
 const UserProfile = () => {
   const [user, setUser] = useState<Record<string, any> | null>(null);
@@ -40,10 +42,16 @@ const UserProfile = () => {
   };
 
   // ✅ Update API call
-  const handleUpdate = async () => {
+const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
+
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
       const response = await fetch(
         `http://localhost:8080/api/user/profile/${userId}`,
@@ -68,15 +76,28 @@ const UserProfile = () => {
 
       const result = await response.json();
 
+      Swal.close();
+
       if (result.status === "success") {
         setUser(result.data);
         setIsEditing(false);
-        alert("Profile updated successfully ✅");
+
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "Profile updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire("Error", result.message, "error");
       }
     } catch (err) {
       console.error(err);
+      Swal.fire("Error", "Failed to update profile", "error");
     }
   };
+
 
   const fields = [
     ["firstName", "lastName"],
@@ -96,6 +117,7 @@ const UserProfile = () => {
     <div
       style={{
         padding: "30px",
+        paddingTop:"40px",
         background: "linear-gradient(135deg, #0f172a, #1e3a8a, #312e81)",
         color: "white",
         borderRadius: "12px",
