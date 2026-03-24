@@ -35,16 +35,7 @@ export const unenrollBooking = async (sessionId: number) => {
     return res.data; 
 };
 
-export const createFeedback = async (
-    sessionId: number,
-    rating: number,
-    feedbackDesc: string
-) => {
-    const res = await apiClient.post("/feedback/create", {
-        sessionId,
-        rating,
-        feedbackDesc,
-    });
-
+export const createFeedback = async (sessionId: number, rating: number, feedbackDesc: string) => {
+    const res = await apiClient.post("/feedback/create", {sessionId, rating, feedbackDesc,});
     return res.data; 
 };

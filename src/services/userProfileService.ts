@@ -16,8 +16,6 @@ export interface UserProfile {
 export const getUserProfile = async (userId: string) => {
     try {
         const response = await apiClient.get(`/user/profile/${userId}`);
-
-        // 🔥 Your backend format: { status, data }
         return response.data.data;
 
     } catch (error: any) {
@@ -26,10 +24,7 @@ export const getUserProfile = async (userId: string) => {
 };
 
 
-export const updateUserProfile = async (
-    userId: string,
-    payload: Partial<UserProfile>
-) => {
+export const updateUserProfile = async (userId: string, payload: Partial<UserProfile>) => {
     try {
         const response = await apiClient.put(
             `/user/profile/${userId}`,

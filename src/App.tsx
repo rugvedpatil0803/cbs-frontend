@@ -9,15 +9,15 @@ import UserProfile from "./pages/UserProfile";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import LandingPage from "./pages/LandingPage";
+import Register from "./pages/Register";
 
 function App() {
   return (
     <Routes>
-      {/* Public */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      {/* Protected + Layout */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

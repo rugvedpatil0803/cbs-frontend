@@ -597,7 +597,7 @@ const ParticipantDashboard = () => {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        zIndex: 2000,
+                        zIndex: 1000,
                     }}
                 >
                     <div

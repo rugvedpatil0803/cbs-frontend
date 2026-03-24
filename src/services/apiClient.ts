@@ -2,7 +2,6 @@ import axios from "axios";
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { decryptData, encryptData } from "../utils/cryptoUtils";
 
-// const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = 'http://localhost:8080/api'
 
 const apiClient = axios.create({
@@ -11,7 +10,6 @@ const apiClient = axios.create({
   timeout: 15000,
 });
 
-// 🔁 Refresh control
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
@@ -30,26 +28,16 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const encryptedToken = localStorage.getItem("token");
 
-    // 🔓 Decrypt token before sending
     const token = encryptedToken ? decryptData(encryptedToken) : null;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // 🚫 NO CACHE
     config.headers["Cache-Control"] =
       "no-cache, no-store, must-revalidate";
     config.headers["Pragma"] = "no-cache";
     config.headers["Expires"] = "0";
-
-    // 🔥 Prevent caching (GET)
-    // if (config.method === "get") {
-    //   config.params = {
-    //     ...(config.params || {}),
-    //     ts: Date.now(),
-    //   };
-    // }
 
     return config;
   },
@@ -90,7 +78,6 @@ apiClient.interceptors.response.use(
 
         const newToken = res.data?.data?.token;
 
-        // 🔐 Store encrypted token
         localStorage.setItem("token", encryptData(newToken));
 
         processQueue(null, newToken);
