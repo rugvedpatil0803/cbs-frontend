@@ -1,39 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
-
+import {
+  getUserProfile,
+  updateUserProfile,
+} from "../services/userProfileService";
 
 const UserProfile = () => {
   const [user, setUser] = useState<Record<string, any> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     fetchUserProfile();
   }, []);
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
+      Swal.fire({
+        title: "Loading profile...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-      const response = await fetch(
-        `http://localhost:8080/api/user/profile/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const userId = localStorage.getItem("userId")!;
+      const data = await getUserProfile(userId);
 
-      const result = await response.json();
-      if (result.status === "success") {
-        setUser(result.data);
-      }
+      setUser(data);
+
+      Swal.close();
+
     } catch (err) {
       console.error(err);
+
+      Swal.close();
+
+      Swal.fire("Error", "Failed to load profile", "error");
     }
   };
 
-  // ✅ Handle input change
   const handleChange = (key: string, value: any) => {
     setUser((prev) => ({
       ...prev!,
@@ -41,11 +49,9 @@ const UserProfile = () => {
     }));
   };
 
-  // ✅ Update API call
-const handleUpdate = async () => {
+  const handleUpdate = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem("userId")!;
 
       Swal.fire({
         title: "Updating...",
@@ -53,51 +59,35 @@ const handleUpdate = async () => {
         didOpen: () => Swal.showLoading(),
       });
 
-      const response = await fetch(
-        `http://localhost:8080/api/user/profile/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            firstName: user?.firstName,
-            lastName: user?.lastName,
-            contactNumber: user?.contactNumber,
-            address: user?.address,
-            motivation: user?.motivation,
-            reason: user?.reason,
-            preferredSessionDuration: user?.preferredSessionDuration,
-            bio: user?.bio,
-          }),
-        }
-      );
-
-      const result = await response.json();
+      const updatedUser = await updateUserProfile(userId, {
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        contactNumber: user?.contactNumber,
+        address: user?.address,
+        motivation: user?.motivation,
+        reason: user?.reason,
+        preferredSessionDuration: user?.preferredSessionDuration,
+        bio: user?.bio,
+      });
 
       Swal.close();
 
-      if (result.status === "success") {
-        setUser(result.data);
-        setIsEditing(false);
+      setUser(updatedUser);
+      setIsEditing(false);
 
-        Swal.fire({
-          icon: "success",
-          title: "Updated!",
-          text: "Profile updated successfully",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      } else {
-        Swal.fire("Error", result.message, "error");
-      }
-    } catch (err) {
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Profile updated successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (err: any) {
       console.error(err);
-      Swal.fire("Error", "Failed to update profile", "error");
+      Swal.fire("Error", err || "Failed to update profile", "error");
     }
   };
-
 
   const fields = [
     ["firstName", "lastName"],
@@ -117,7 +107,7 @@ const handleUpdate = async () => {
     <div
       style={{
         padding: "30px",
-        paddingTop:"40px",
+        paddingTop: "40px",
         background: "linear-gradient(135deg, #0f172a, #1e3a8a, #312e81)",
         color: "white",
         borderRadius: "12px",
@@ -134,7 +124,6 @@ const handleUpdate = async () => {
       >
         <h2>User Profile</h2>
 
-        {/* Buttons */}
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
@@ -150,7 +139,7 @@ const handleUpdate = async () => {
             <button
               onClick={() => {
                 setIsEditing(false);
-                fetchUserProfile(); // reset changes
+                fetchUserProfile();
               }}
               style={btnStyle("#ef4444")}
             >
@@ -175,9 +164,7 @@ const handleUpdate = async () => {
               <div key={key} style={{ display: "flex", flexDirection: "column" }}>
                 <label>{formatLabel(key)}</label>
 
-                {key === "motivation" ||
-                key === "reason" ||
-                key === "bio" ? (
+                {["motivation", "reason", "bio"].includes(key) ? (
                   <textarea
                     value={user[key] || ""}
                     disabled={!isEditing}
@@ -189,7 +176,7 @@ const handleUpdate = async () => {
                   <input
                     type="text"
                     value={user[key] || ""}
-                    disabled={!isEditing || key === "email"} // email not editable
+                    disabled={!isEditing || key === "email"}
                     onChange={(e) => handleChange(key, e.target.value)}
                     style={inputStyle}
                   />
@@ -203,7 +190,7 @@ const handleUpdate = async () => {
   );
 };
 
-// 🔥 Reusable styles
+// 🔥 Styles
 const inputStyle = {
   padding: "10px",
   borderRadius: "8px",

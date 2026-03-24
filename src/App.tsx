@@ -8,12 +8,13 @@ import UserProfile from "./pages/UserProfile";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
 
       {/* Protected + Layout */}

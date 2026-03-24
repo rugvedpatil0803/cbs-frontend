@@ -9,7 +9,7 @@ import {
     createBooking,
     unenrollBooking,
     createFeedback
-} from "../services/dashboardService";
+} from "../services/participantDashboardService";
 
 
 type SessionItem = {

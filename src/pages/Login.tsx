@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginWithEmail, loginWithPassword } from "../services/authService";
 import { getHighestRole } from "../utils/roleUtils";
 import { redirectToDashboard } from "../utils/navigationUtils";
-import { encryptData } from "../utils/cryptoUtils"; // ✅ IMPORTANT
+import { encryptData } from "../utils/cryptoUtils";
 
 const Login = () => {
   const [step, setStep] = useState<"email" | "password">("email");
@@ -18,14 +18,20 @@ const Login = () => {
   const handleEmailNext = async () => {
     try {
       setError("");
+      setMessage("");
       setLoading(true);
 
-      await loginWithEmail(email);
+      const res = await loginWithEmail(email);
 
       setStep("password");
-      setMessage("Enter password");
+      setMessage(res?.message || "Enter password");
+
     } catch (err: any) {
-      setError(err?.message || "Something went wrong");
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Email verification failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -36,13 +42,14 @@ const Login = () => {
       setError("");
       setLoading(true);
 
-      const res = await loginWithPassword(email, password);
-      const data = res.data;
+      const data = await loginWithPassword(email, password);
 
-      // 🔐 FIX: encrypt token before storing
+      if (!data?.token) {
+        throw new Error("Invalid login response");
+      }
+
       localStorage.setItem("token", encryptData(data.token));
 
-      // 🔐 OPTIONAL: if refreshToken exists
       if (data.refreshToken) {
         localStorage.setItem(
           "refreshToken",
@@ -50,23 +57,32 @@ const Login = () => {
         );
       }
 
-      localStorage.setItem("roles", JSON.stringify(data.roles));
-      localStorage.setItem("userId", data.userId.toString());
-      localStorage.setItem("firstName", data.firstName);
-      localStorage.setItem("lastName", data.lastName);
+      localStorage.setItem("roles", JSON.stringify(data.roles || []));
+      localStorage.setItem("userId", String(data.userId || ""));
+      localStorage.setItem("firstName", data.firstName || "");
+      localStorage.setItem("lastName", data.lastName || "");
 
-      const highestRole = getHighestRole(data.roles);
-      localStorage.setItem("activeRole", highestRole!);
+      const highestRole = getHighestRole(data.roles || []);
 
-      // 🚀 redirect
-      redirectToDashboard(highestRole!, navigate);
+      if (!highestRole) {
+        throw new Error("No role assigned to user");
+      }
+
+      localStorage.setItem("activeRole", highestRole);
+
+      redirectToDashboard(highestRole, navigate);
 
     } catch (err: any) {
-      setError(err?.message || "Login failed");
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Login failed"
+      );
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div style={{ padding: "20px" }}>

@@ -44,12 +44,12 @@ apiClient.interceptors.request.use(
     config.headers["Expires"] = "0";
 
     // 🔥 Prevent caching (GET)
-    if (config.method === "get") {
-      config.params = {
-        ...(config.params || {}),
-        ts: Date.now(),
-      };
-    }
+    // if (config.method === "get") {
+    //   config.params = {
+    //     ...(config.params || {}),
+    //     ts: Date.now(),
+    //   };
+    // }
 
     return config;
   },

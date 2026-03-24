@@ -1,36 +1,29 @@
-const BASE_URL = "http://localhost:8080";
+import apiClient from "./apiClient";
 
+// 🔹 Step 1: Email verification
 export const loginWithEmail = async (email: string) => {
-  const response = await fetch(`${BASE_URL}/auth/login/email`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
+  const res = await apiClient.post("/auth/login/email", { email });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Email verification failed");
+  if (res.data?.status !== "success") {
+    throw new Error(res.data?.message || "Email verification failed");
   }
 
-  return data;
+  return res.data;
 };
 
-export const loginWithPassword = async (email: string, password: string) => {
-  const res = await fetch("http://localhost:8080/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({ email, password }),
+// 🔹 Step 2: Password login
+export const loginWithPassword = async (
+  email: string,
+  password: string
+) => {
+  const res = await apiClient.post("/auth/login", {
+    email,
+    password,
   });
 
-  const data = await res.json();
+  if (res.data?.status !== "success") {
+    throw new Error(res.data?.message || "Login failed");
+  }
 
-  if (!res.ok) throw new Error(data.message || "Login failed");
-
-  return data;
+  return res.data.data; // ✅ correct
 };
