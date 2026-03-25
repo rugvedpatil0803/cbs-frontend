@@ -119,6 +119,24 @@ npm run preview
 
 ---
 
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-19-50" src="https://github.com/user-attachments/assets/57f89a5a-092b-4c61-800a-04863cf80147" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-20-01" src="https://github.com/user-attachments/assets/cd634a0e-7692-4c24-b691-72d3b02f430e" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-09-08" src="https://github.com/user-attachments/assets/862a9dba-ff14-4ae0-b928-276554beae4a" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-09-27" src="https://github.com/user-attachments/assets/10a6c831-2cd1-4f89-9584-769f2c4dcfd7" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-08-00" src="https://github.com/user-attachments/assets/8eb4ebe9-2206-44f4-ad93-48ed630fbe27" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-09-44" src="https://github.com/user-attachments/assets/5cd241ef-dc64-4bbc-a9d5-86d695bf238a" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-10-32" src="https://github.com/user-attachments/assets/86895d42-8087-4e58-8396-b632099426f3" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-10-52" src="https://github.com/user-attachments/assets/38a80d72-83a7-4648-90bd-38879ffcd51d" />
+
+<img width="1920" height="970" alt="Screenshot from 2026-03-25 23-11-12" src="https://github.com/user-attachments/assets/31fa4dc8-7ac3-415c-bdb7-3208dbd4a500" />
+
 ## 👨‍💻 Author
 
 **Rugved Patil**  
