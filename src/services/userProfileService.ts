@@ -12,6 +12,23 @@ export interface UserProfile {
     bio: string;
 }
 
+export interface BookingHistory {
+    bookingId: number;
+    bookingTime: string;
+    sessionId: number;
+    sessionName: string;
+    sessionDescription: string;
+    startDay: string;
+    endDay: string;
+    startTime: string;
+    endTime: string;
+    metaData: string | null;
+    coachId: number;
+    coachName: string;
+    isActive: boolean;
+    isDeleted: boolean;
+}
+
 
 export const getUserProfile = async (userId: string) => {
     try {
@@ -45,5 +62,24 @@ export const userByList = async () => {
 
     } catch (error: any) {
         throw error?.response?.data?.message || "Failed to get Users";
+    }
+};
+
+export const deactivateUser = async (userId: number) => {
+    try {
+        await apiClient.put(`/user/deactivate/${userId}`);
+    } catch (error: any) {
+        throw error?.response?.data?.message || "Failed to deactivate user";
+    }
+};
+
+
+export const getUserBookingHistory = async (userId: number): Promise<BookingHistory[]> => {
+    try {
+        const response = await apiClient.get(`/user/bookingslist/${userId}`);
+        return response.data.data;
+
+    } catch (error: any) {
+        throw error?.response?.data?.message || "Failed to fetch booking history";
     }
 };
