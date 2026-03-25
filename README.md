@@ -1,6 +1,6 @@
-# 📦 CBS Frontend
+# 💻 CBS Frontend
 
-A modern web application frontend built with **React 19 + TypeScript + Vite**, featuring routing, HTTP communication, UI feedback, and Tailwind CSS styling.
+A **Coach Booking System (CBS) Frontend** built with **React 19**, **TypeScript**, **Vite**, and **Tailwind CSS**. It communicates with the [CBS Backend](https://github.com/rugvedpatil0803/cbs-backend) REST API via Axios.
 
 ---
 
@@ -8,63 +8,15 @@ A modern web application frontend built with **React 19 + TypeScript + Vite**, f
 
 | Technology | Version | Purpose |
 |---|---|---|
-| React | ^19.2.4 | UI library |
+| React | 19.2.4 | UI framework |
 | TypeScript | ~5.9.3 | Type-safe JavaScript |
-| Vite | ^8.0.1 | Build tool & dev server |
-| Tailwind CSS | ^3.4.14 | Utility-first styling |
-| React Router DOM | ^7.13.2 | Client-side routing |
-| Axios | ^1.13.6 | HTTP requests |
-| React Icons | ^5.6.0 | Icon library |
-| SweetAlert2 | ^11.26.24 | Popup/alert dialogs |
-| CryptoJS | ^4.2.0 | Encryption utilities |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-Make sure **Node.js (LTS)** and **npm** are installed:
-
-```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install nodejs npm -y
-
-# Verify
-node -v
-npm -v
-```
-
-### Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/rugvedpatil0803/cbs-frontend.git
-cd cbs-frontend
-
-# Install dependencies
-npm install
-```
-
-### Running the App
-
-```bash
-npm run dev
-```
-
-App runs at: **http://localhost:3000**
-
----
-
-## 💡 Available Scripts
-
-```bash
-npm run dev        # Start Vite development server
-npm run build      # Type-check + production build → /dist
-npm run preview    # Preview the production build locally
-npm run lint       # Run ESLint
-```
+| Vite | 8.0.1 | Build tool & dev server |
+| Tailwind CSS | 3.4.14 | Utility-first styling |
+| Axios | 1.13.6 | HTTP client for API calls |
+| React Router DOM | 7.13.2 | Client-side routing |
+| React Icons | 5.6.0 | Icon library |
+| SweetAlert2 | 11.26.24 | Alerts & dialogs |
+| crypto-js | 4.2.0 | Client-side encryption utilities |
 
 ---
 
@@ -72,52 +24,120 @@ npm run lint       # Run ESLint
 
 ```
 cbs-frontend/
-├── public/              # Static assets
-├── src/                 # Application source code
-│   ├── components/      # Reusable UI components
-│   ├── pages/           # Route-level pages
-│   └── ...
-├── index.html           # HTML entry point
-├── vite.config.ts       # Vite configuration
-├── tailwind.config.js   # Tailwind CSS configuration
-├── tsconfig.app.json    # App TypeScript config
-└── package.json         # Dependencies & scripts
+├── public/               # Static assets
+├── src/                  # Application source code
+│   ├── components/       # Reusable UI components
+│   ├── pages/            # Route-level page components
+│   ├── services/         # Axios API service calls
+│   └── main.tsx          # App entry point
+├── index.html            # HTML shell
+├── env                   # Environment variable template
+├── vite.config.ts        # Vite configuration
+├── tailwind.config.js    # Tailwind configuration
+├── tsconfig.json         # TypeScript configuration
+└── package.json          # Dependencies and scripts
 ```
 
 ---
 
-## ⚙️ Environment Variables
+## ⚙️ Prerequisites
 
-The project uses an `env` file for configuration. Copy and update it before running:
+Make sure the following are installed:
+
+- **Node.js** (LTS recommended) — [Download here](https://nodejs.org/)
+- **npm** (comes with Node.js)
 
 ```bash
-cp env .env
-# Edit .env with your values
+# Verify installation
+node -v
+npm -v
+```
+
+> Vite is bundled via `package.json` — no global install needed.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/rugvedpatil0803/cbs-frontend.git
+cd cbs-frontend
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root based on the `env` template:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the Development Server
+
+```bash
+npm run dev
+```
+
+App will be available at:
+
+```
+http://localhost:5173
 ```
 
 ---
 
-## 🔧 Configuration Notes
+## 📦 Available Scripts
 
-- **React Compiler** is enabled via `babel-plugin-react-compiler` — may affect dev/build performance
-- **Tailwind CSS** is configured with PostCSS via `postcss.config.js`
-- **ESLint** is set up with React Hooks and React Refresh plugins
+| Command | Description |
+|---|---|
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint checks |
 
 ---
 
-## 📦 Build for Production
+## 🏗️ Build for Production
 
 ```bash
 npm run build
 ```
 
-Output is in the `/dist` folder. Preview it with:
+The optimized output will be in the `/dist` folder. You can serve it with:
 
 ```bash
 npm run preview
 ```
 
 ---
+
+## 🔗 Backend API
+
+This frontend connects to the **CBS Backend** running at `http://localhost:8080`.
+
+Make sure the backend is running before starting the frontend. See the backend repo for setup instructions:
+
+👉 [cbs-backend](https://github.com/rugvedpatil0803/cbs-backend)
+
+---
+
+## 🔐 Authentication Flow
+
+1. User logs in via the login page.
+2. The backend returns a **JWT token**.
+3. The token is stored client-side and attached to all subsequent API requests via Axios interceptors.
+4. Protected routes redirect unauthenticated users to the login page.
+
+---
+
 
 <img width="1920" height="970" alt="Screenshot from 2026-03-25 23-19-50" src="https://github.com/user-attachments/assets/57f89a5a-092b-4c61-800a-04863cf80147" />
 
@@ -137,7 +157,10 @@ npm run preview
 
 <img width="1920" height="970" alt="Screenshot from 2026-03-25 23-11-12" src="https://github.com/user-attachments/assets/31fa4dc8-7ac3-415c-bdb7-3208dbd4a500" />
 
+
+
+
 ## 👨‍💻 Author
 
-**Rugved Patil**  
-[github.com/rugvedpatil0803](https://github.com/rugvedpatil0803)
+**Rugved Patil**
+- GitHub: [@rugvedpatil0803](https://github.com/rugvedpatil0803)
