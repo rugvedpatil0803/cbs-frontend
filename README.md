@@ -1,164 +1,117 @@
-# React + TypeScript + Vite
+# 📦 CBS Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-
-# 📦 CBS Frontend (React + Vite)
-
-This project is built using **React + TypeScript + Vite**.
+A modern web application frontend built with **React 19 + TypeScript + Vite**, featuring routing, HTTP communication, UI feedback, and Tailwind CSS styling.
 
 ---
 
-## 🚀 Prerequisites
+## 🛠️ Tech Stack
 
-Make sure the following are installed on your Linux machine:
+| Technology | Version | Purpose |
+|---|---|---|
+| React | ^19.2.4 | UI library |
+| TypeScript | ~5.9.3 | Type-safe JavaScript |
+| Vite | ^8.0.1 | Build tool & dev server |
+| Tailwind CSS | ^3.4.14 | Utility-first styling |
+| React Router DOM | ^7.13.2 | Client-side routing |
+| Axios | ^1.13.6 | HTTP requests |
+| React Icons | ^5.6.0 | Icon library |
+| SweetAlert2 | ^11.26.24 | Popup/alert dialogs |
+| CryptoJS | ^4.2.0 | Encryption utilities |
 
-### 1. Install Node.js (LTS)
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure **Node.js (LTS)** and **npm** are installed:
 
 ```bash
+# Ubuntu/Debian
 sudo apt update
 sudo apt install nodejs npm -y
-```
 
-### 2. Verify installation
-
-```bash
+# Verify
 node -v
 npm -v
 ```
 
----
-
-## ⚡ About Vite
-
-* Vite is used as the **build tool and development server**
-* It is installed automatically via `package.json`
-* No separate installation required ❌
-
----
-
-## 📥 Clone the Repository
+### Installation
 
 ```bash
-git clone <your-repo-url>
+# Clone the repo
+git clone https://github.com/rugvedpatil0803/cbs-frontend.git
 cd cbs-frontend
-```
 
----
-
-## 📦 Install Dependencies (includes Vite)
-
-```bash
+# Install dependencies
 npm install
 ```
 
-👉 This installs:
-
-* React
-* Vite
-* All required dependencies
-
----
-
-## ▶️ Run Development Server (Vite)
+### Running the App
 
 ```bash
 npm run dev
 ```
 
-App will run on:
-
-```text
-http://localhost:5173
-```
-
-(or `3000` if configured)
+App runs at: **http://localhost:3000**
 
 ---
 
-## ⚙️ Build for Production
+## 💡 Available Scripts
+
+```bash
+npm run dev        # Start Vite development server
+npm run build      # Type-check + production build → /dist
+npm run preview    # Preview the production build locally
+npm run lint       # Run ESLint
+```
+
+---
+
+## 📁 Project Structure
+
+```
+cbs-frontend/
+├── public/              # Static assets
+├── src/                 # Application source code
+│   ├── components/      # Reusable UI components
+│   ├── pages/           # Route-level pages
+│   └── ...
+├── index.html           # HTML entry point
+├── vite.config.ts       # Vite configuration
+├── tailwind.config.js   # Tailwind CSS configuration
+├── tsconfig.app.json    # App TypeScript config
+└── package.json         # Dependencies & scripts
+```
+
+---
+
+## ⚙️ Environment Variables
+
+The project uses an `env` file for configuration. Copy and update it before running:
+
+```bash
+cp env .env
+# Edit .env with your values
+```
+
+---
+
+## 🔧 Configuration Notes
+
+- **React Compiler** is enabled via `babel-plugin-react-compiler` — may affect dev/build performance
+- **Tailwind CSS** is configured with PostCSS via `postcss.config.js`
+- **ESLint** is set up with React Hooks and React Refresh plugins
+
+---
+
+## 📦 Build for Production
 
 ```bash
 npm run build
 ```
 
-👉 Vite bundles the app into `/dist`
-
----
-
-## 🔍 Preview Production Build
+Output is in the `/dist` folder. Preview it with:
 
 ```bash
 npm run preview
@@ -166,33 +119,7 @@ npm run preview
 
 ---
 
-## 🛠️ Tech Stack
-
-* React
-* TypeScript
-* Vite
-
----
-
-## ⚠️ Notes
-
-* Vite runs the dev server (not React directly)
-* No global Vite install needed
-* If port is busy, Vite auto-switches
-
----
-
-## 💡 Useful Commands
-
-```bash
-npm install        # install dependencies (including Vite)
-npm run dev        # start Vite dev server
-npm run build      # build project using Vite
-npm run preview    # preview production build
-```
-
----
-
 ## 👨‍💻 Author
 
-Rugved Patil
+**Rugved Patil**  
+[github.com/rugvedpatil0803](https://github.com/rugvedpatil0803)
