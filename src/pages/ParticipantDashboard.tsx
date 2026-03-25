@@ -501,7 +501,7 @@ const ParticipantDashboard = () => {
                     top: 0,
                     left: 0,
                     backdropFilter: "blur(8px)",
-                    background: "rgba(15, 23, 42, 0.6)", // glass effect
+                    background: "rgba(15, 23, 42, 0.6)", 
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -509,7 +509,6 @@ const ParticipantDashboard = () => {
                     zIndex: 9999,
                 }}
             >
-                {/* Spinner */}
                 <div
                     style={{
                         width: "60px",
@@ -522,7 +521,6 @@ const ParticipantDashboard = () => {
                     }}
                 />
 
-                {/* Text */}
                 <p
                     style={{
                         color: "#e2e8f0",
@@ -531,10 +529,9 @@ const ParticipantDashboard = () => {
                         letterSpacing: "0.5px",
                     }}
                 >
-                    Loading Dashboard...
+                    Loading Participant Dashboard...
                 </p>
 
-                {/* Animation */}
                 <style>
                     {`
             @keyframes spin {
