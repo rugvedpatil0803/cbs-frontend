@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import Swal from "sweetalert2";
-import {
-  fetchUpcoming,
-  fetchOngoing,
-  fetchCompleted,
-} from "../services/participantDashboardService";
+import {fetchUpcoming, fetchOngoing, fetchCompleted,} from "../services/participantDashboardService";
+import { getSessionAnalytics, unenrollParticipant, enrollParticipant } from "../services/sessionService";
+import { userByList } from "./../services/userProfileService";
 import { useNavigate } from "react-router-dom";
-import { getSessionAnalytics } from "../services/sessionService"; 
+import Swal from "sweetalert2";
 
 
 type SessionItem = {
@@ -79,6 +76,10 @@ const AdminDashboard = () => {
     useState<SessionAnalyticsResponse | null>(null);
   const [selectedSessionName, setSelectedSessionName] = useState("");
 
+  const [addParticipantOpen, setAddParticipantOpen] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const hasFetched = useRef(false);
@@ -126,34 +127,209 @@ const AdminDashboard = () => {
     setShowModal(true);
   };
 
-const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
-  try {
-    setAnalyticsOpen(true);
-    setAnalyticsLoading(true);
-    setAnalyticsData(null);
-    setSelectedSessionName(sessionName);
+  const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
+    try {
+      setAnalyticsOpen(true);
+      setAnalyticsLoading(true);
+      setAnalyticsData(null);
+      setSelectedSessionName(sessionName);
 
-    const result = await getSessionAnalytics(sessionId);
+      // 🔥 GLOBAL LOADER
+      Swal.fire({
+        title: "Loading...",
+        text: "Fetching session analytics",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-    if (result.status !== "success") {
-      throw new Error(result.message || "Failed to fetch analytics");
+      const result = await getSessionAnalytics(sessionId);
+
+      Swal.close();
+
+      if (result.status !== "success") {
+        throw new Error(result.message || "Failed to fetch analytics");
+      }
+
+      setAnalyticsData(result.data);
+    } catch (error: any) {
+      Swal.close();
+
+      console.error("Error fetching session analytics:", error);
+      setAnalyticsOpen(false);
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: error?.message || "Unable to load session analytics",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setAnalyticsLoading(false);
     }
+  };
 
-    setAnalyticsData(result.data);
-  } catch (error: any) {
-    console.error("Error fetching session analytics:", error);
-    setAnalyticsOpen(false);
+  const openAddParticipantPopup = async () => {
+    try {
+      setAddParticipantOpen(true);
+      setLoadingUsers(true);
 
-    Swal.fire({
-      icon: "error",
-      title: "Failed",
-      text: error?.message || "Unable to load session analytics",
-      confirmButtonColor: "#ef4444",
-    });
-  } finally {
-    setAnalyticsLoading(false);
-  }
-};
+      Swal.fire({
+        title: "Loading Users...",
+        text: "Fetching participant list",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await userByList();
+
+      Swal.close();
+
+      const allParticipants = res.PARTICIPANT || [];
+
+      const existingIds =
+        analyticsData?.participants.allParticipants.map((p) => p.userId) || [];
+
+      const filtered = allParticipants.filter(
+        (u: any) => !existingIds.includes(u.userId)
+      );
+
+      setAvailableUsers(filtered);
+    } catch (err: any) {
+      Swal.close();
+
+      Swal.fire("Error", err, "error");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleEnroll = async (participantId: number) => {
+    try {
+      Swal.fire({
+        title: "Enrolling...",
+        text: "Please wait",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await enrollParticipant(
+        analyticsData!.session.sessionId,
+        participantId
+      );
+
+      Swal.close();
+
+      if (res.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Enrolled",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+
+        setAvailableUsers((prev) =>
+          prev.filter((u) => u.userId !== participantId)
+        );
+
+        const addedUser = availableUsers.find(
+          (u) => u.userId === participantId
+        );
+
+        if (addedUser) {
+          setAnalyticsData((prev) => {
+            if (!prev) return prev;
+
+            return {
+              ...prev,
+              participants: {
+                ...prev.participants,
+                allParticipants: [
+                  ...prev.participants.allParticipants,
+                  {
+                    userId: addedUser.userId,
+                    name: `${addedUser.firstName} ${addedUser.lastName}`,
+                    email: addedUser.email,
+                    contactNumber: "-",
+                    bookingTime: new Date().toISOString(),
+                  },
+                ],
+              },
+            };
+          });
+        }
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err: any) {
+      Swal.close();
+
+      Swal.fire("Error", err?.message || "Failed", "error");
+    }
+  };
+
+  const handleUnenroll = async (sessionId: number, participantId: number) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: "You want to unenroll this participant?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        confirmButtonText: "Yes, Unenroll",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      Swal.fire({
+        title: "Processing...",
+        text: "Unenrolling participant",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await unenrollParticipant(sessionId, participantId);
+
+      Swal.close();
+
+      if (res.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Unenrolled",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+
+        setAnalyticsData((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            participants: {
+              ...prev.participants,
+              allParticipants: prev.participants.allParticipants.filter(
+                (p) => p.userId !== participantId
+              ),
+            },
+          };
+        });
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err: any) {
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: err?.message || "Failed to unenroll",
+        confirmButtonColor: "#ef4444",
+      });
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(`${dateStr}T00:00:00`);
@@ -347,6 +523,12 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
       </div>
     );
   }
+
+  const isCompleted =
+    analyticsData?.status?.toLowerCase().trim() === "completed";
+
+  const hasSeats =
+    (analyticsData?.availability?.availableSeats ?? 0) > 0;
 
   return (
     <>
@@ -575,6 +757,152 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                 </button>
               </div>
 
+              {addParticipantOpen && (
+                <div
+                  onClick={() => setAddParticipantOpen(false)}
+                  style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.7)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 3000,
+                  }}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      width: "90%",
+                      maxWidth: "900px",
+                      maxHeight: "85vh",
+                      overflowY: "auto",
+                      background: "#0f172a",
+                      borderRadius: "14px",
+                      padding: "20px",
+                      color: "white",
+                    }}
+                    className="custom-scroll"
+                  >
+                    {/* HEADER */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        paddingBottom: "12px",
+                        borderBottom: "1px solid rgba(255,255,255,0.08)",
+                        marginBottom: "14px",
+                      }}
+                    >
+                      <div>
+                        <h2 style={{ margin: 0, fontSize: "20px" }}>{analyticsData?.session.name}</h2>
+                      </div>
+
+                      <button
+                        onClick={() => setAddParticipantOpen(false)}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "10px",
+                          border: "none",
+                          background: "rgba(255,255,255,0.06)",
+                          color: "#e2e8f0",
+                          fontSize: "18px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(239,68,68,0.18)";
+                          e.currentTarget.style.transform = "scale(1.08)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* SESSION INFO */}
+                    <div
+                      style={{
+                        marginBottom: "18px",
+                        padding: "12px 14px",
+                        borderRadius: "10px",
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        fontSize: "13px",
+                        color: "#e2e8f0",
+                        lineHeight: "1.6",
+                      }}
+                    >
+                      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                        <span>👨‍🏫 {analyticsData?.session.coach}</span>
+                        <span>
+                          📅 {formatDate(analyticsData!.session.schedule.startDay)} →{" "}
+                          {formatDate(analyticsData!.session.schedule.endDay)}
+                        </span>
+                        <span>
+                          ⏰ {analyticsData?.session.schedule.startTime} -{" "}
+                          {analyticsData?.session.schedule.endTime}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* TABLE */}
+                    {loadingUsers ? (
+                      <p>Loading users...</p>
+                    ) : availableUsers.length === 0 ? (
+                      <p>No available participants</p>
+                    ) : (
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr style={{ background: "#1f2937" }}>
+                            <th style={tableHeadStyle}>ID</th>
+                            <th style={tableHeadStyle}>Name</th>
+                            <th style={tableHeadStyle}>Email</th>
+                            <th style={tableHeadStyle}>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {availableUsers.map((u) => (
+                            <tr key={u.userId}>
+                              <td style={tableCellStyle}>{u.userId}</td>
+                              <td style={tableCellStyle}>
+                                {u.firstName} {u.lastName}
+                              </td>
+                              <td style={tableCellStyle}>{u.email}</td>
+                              <td style={tableCellStyle}>
+                                <button
+                                  onClick={() => handleEnroll(u.userId)}
+                                  style={{
+                                    padding: "6px 10px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  Enroll
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {analyticsLoading ? (
                 <div style={{ padding: "40px", textAlign: "center" }}>
                   <div
@@ -592,6 +920,7 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                 </div>
               ) : analyticsData ? (
                 <div style={{ padding: "22px" }}>
+
                   <div
                     style={{
                       display: "grid",
@@ -600,28 +929,62 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                       marginBottom: "22px",
                     }}
                   >
-                    <div style={analyticsCardStyle}>
+                    {/* Session Name */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05))",
+                        border: "1px solid rgba(99,102,241,0.4)",
+                        borderLeft: "4px solid #6366f1",
+                        borderRadius: "14px",
+                        padding: "16px",
+                        boxShadow: "0 4px 20px rgba(99,102,241,0.2)",
+                      }}
+                    >
                       <div style={analyticsLabelStyle}>Session Name</div>
-                      <div style={analyticsValueStyle}>
-                        {analyticsData.session.name}
-                      </div>
+                      <div style={analyticsValueStyle}>{analyticsData.session.name}</div>
                     </div>
 
-                    <div style={analyticsCardStyle}>
+                    {/* Coach */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05))",
+                        border: "1px solid rgba(34,197,94,0.4)",
+                        borderLeft: "4px solid #22c55e",
+                        borderRadius: "14px",
+                        padding: "16px",
+                        boxShadow: "0 4px 20px rgba(34,197,94,0.2)",
+                      }}
+                    >
                       <div style={analyticsLabelStyle}>Coach</div>
-                      <div style={analyticsValueStyle}>
-                        {analyticsData.session.coach}
-                      </div>
+                      <div style={analyticsValueStyle}>{analyticsData.session.coach}</div>
                     </div>
 
-                    <div style={analyticsCardStyle}>
+                    {/* Status */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))",
+                        border: "1px solid rgba(245,158,11,0.4)",
+                        borderLeft: "4px solid #f59e0b",
+                        borderRadius: "14px",
+                        padding: "16px",
+                        boxShadow: "0 4px 20px rgba(245,158,11,0.2)",
+                      }}
+                    >
                       <div style={analyticsLabelStyle}>Status</div>
-                      <div style={analyticsValueStyle}>
-                        {analyticsData.status}
-                      </div>
+                      <div style={analyticsValueStyle}>{analyticsData.status}</div>
                     </div>
 
-                    <div style={analyticsCardStyle}>
+                    {/* Seats */}
+                    <div
+                      style={{
+                        background: "linear-gradient(135deg, rgba(6,182,212,0.15), rgba(6,182,212,0.05))",
+                        border: "1px solid rgba(6,182,212,0.4)",
+                        borderLeft: "4px solid #06b6d4",
+                        borderRadius: "14px",
+                        padding: "16px",
+                        boxShadow: "0 4px 20px rgba(6,182,212,0.2)",
+                      }}
+                    >
                       <div style={analyticsLabelStyle}>Total Seats</div>
                       <div style={analyticsValueStyle}>
                         {analyticsData.session.totalSeats}
@@ -629,6 +992,7 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                     </div>
                   </div>
 
+                  {/* ===== DETAILS SECTIONS ===== */}
                   <div
                     style={{
                       display: "grid",
@@ -637,11 +1001,21 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                       marginBottom: "22px",
                     }}
                   >
-                    <div style={sectionCardStyle}>
-                      <h3 style={sectionTitleStyle}>Session Details</h3>
+                    {/* Session Details */}
+                    <div
+                      style={{
+                        background: "linear-gradient(180deg, rgba(99,102,241,0.08), rgba(99,102,241,0.02))",
+                        border: "1px solid rgba(99,102,241,0.3)",
+                        borderRadius: "14px",
+                        padding: "18px",
+                        boxShadow: "0 10px 30px rgba(99,102,241,0.1)",
+                      }}
+                    >
+                      <h3 style={{ ...sectionTitleStyle, color: "#a5b4fc" }}>
+                        📘 Session Details
+                      </h3>
                       <p style={detailLineStyle}>
-                        <strong>Description:</strong>{" "}
-                        {analyticsData.session.description}
+                        <strong>Description:</strong> {analyticsData.session.description}
                       </p>
                       <p style={detailLineStyle}>
                         <strong>Start Day:</strong>{" "}
@@ -658,11 +1032,21 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                       </p>
                     </div>
 
-                    <div style={sectionCardStyle}>
-                      <h3 style={sectionTitleStyle}>Availability</h3>
+                    {/* Availability */}
+                    <div
+                      style={{
+                        background: "linear-gradient(180deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02))",
+                        border: "1px solid rgba(34,197,94,0.3)",
+                        borderRadius: "14px",
+                        padding: "18px",
+                        boxShadow: "0 10px 30px rgba(34,197,94,0.1)",
+                      }}
+                    >
+                      <h3 style={{ ...sectionTitleStyle, color: "#86efac" }}>
+                        📊 Availability
+                      </h3>
                       <p style={detailLineStyle}>
-                        <strong>Max Seat:</strong>{" "}
-                        {analyticsData.availability.maxSeat}
+                        <strong>Max Seat:</strong> {analyticsData.availability.maxSeat}
                       </p>
                       <p style={detailLineStyle}>
                         <strong>Occupied Seats:</strong>{" "}
@@ -674,13 +1058,23 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                       </p>
                       <p style={detailLineStyle}>
                         <strong>Occupancy:</strong>{" "}
-                        {analyticsData.availability.occupancyPercentage.toFixed(2)}
-                        %
+                        {analyticsData.availability.occupancyPercentage.toFixed(2)}%
                       </p>
                     </div>
 
-                    <div style={sectionCardStyle}>
-                      <h3 style={sectionTitleStyle}>Booking Stats</h3>
+                    {/* Booking Stats */}
+                    <div
+                      style={{
+                        background: "linear-gradient(180deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02))",
+                        border: "1px solid rgba(245,158,11,0.3)",
+                        borderRadius: "14px",
+                        padding: "18px",
+                        boxShadow: "0 10px 30px rgba(245,158,11,0.1)",
+                      }}
+                    >
+                      <h3 style={{ ...sectionTitleStyle, color: "#fcd34d" }}>
+                        📦 Booking Stats
+                      </h3>
                       <p style={detailLineStyle}>
                         <strong>Total Bookings:</strong>{" "}
                         {analyticsData.bookingStats.totalBookings}
@@ -699,8 +1093,19 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                       </p>
                     </div>
 
-                    <div style={sectionCardStyle}>
-                      <h3 style={sectionTitleStyle}>Feedback</h3>
+                    {/* Feedback */}
+                    <div
+                      style={{
+                        background: "linear-gradient(180deg, rgba(236,72,153,0.08), rgba(236,72,153,0.02))",
+                        border: "1px solid rgba(236,72,153,0.3)",
+                        borderRadius: "14px",
+                        padding: "18px",
+                        boxShadow: "0 10px 30px rgba(236,72,153,0.1)",
+                      }}
+                    >
+                      <h3 style={{ ...sectionTitleStyle, color: "#f9a8d4" }}>
+                        ⭐ Feedback
+                      </h3>
                       <p style={detailLineStyle}>
                         <strong>Average Rating:</strong>{" "}
                         {analyticsData.feedbackStats.averageRating}
@@ -713,7 +1118,27 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                   </div>
 
                   <div style={sectionCardStyle}>
-                    <h3 style={sectionTitleStyle}>Participants</h3>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <h3 style={sectionTitleStyle}>Participants</h3>
+
+                      {!isCompleted && hasSeats && (
+                        <button
+                          onClick={openAddParticipantPopup}
+                          style={{
+                            padding: "8px 14px",
+                            borderRadius: "8px",
+                            border: "none",
+                            background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                            color: "white",
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            marginBottom: "20px",
+                          }}
+                        >
+                          + Add Participant
+                        </button>
+                      )}
+                    </div>
 
                     {analyticsData.participants.allParticipants.length === 0 ? (
                       <p style={{ color: "#cbd5e1" }}>No participants found.</p>
@@ -733,6 +1158,9 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                               <th style={tableHeadStyle}>Email</th>
                               <th style={tableHeadStyle}>Contact</th>
                               <th style={tableHeadStyle}>Booking Time</th>
+                              {!isCompleted && (
+                                <th style={tableHeadStyle}>Action</th>
+                              )}
                             </tr>
                           </thead>
                           <tbody>
@@ -760,6 +1188,30 @@ const openAnalyticsPopup = async (sessionId: number, sessionName: string) => {
                                   <td style={tableCellStyle}>
                                     {formatDateTime(participant.bookingTime)}
                                   </td>
+                                  {!isCompleted && (
+                                    <td style={tableCellStyle}>
+                                      <button
+                                        onClick={() =>
+                                          handleUnenroll(
+                                            analyticsData!.session.sessionId,
+                                            participant.userId
+                                          )
+                                        }
+                                        style={{
+                                          padding: "6px 10px",
+                                          borderRadius: "6px",
+                                          border: "none",
+                                          background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                                          color: "white",
+                                          cursor: "pointer",
+                                          fontSize: "12px",
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        Unenroll
+                                      </button>
+                                    </td>
+                                  )}
                                 </tr>
                               )
                             )}
