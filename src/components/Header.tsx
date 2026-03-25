@@ -59,7 +59,6 @@ const Header = () => {
     }
   };
 
-  // Format date & time
   const formattedDate = currentTime.toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
@@ -84,7 +83,7 @@ const Header = () => {
         height: "60px",
         zIndex: 1000,
         background: "linear-gradient(135deg, #1e3a8a, #6d28d9)",
-        color: "#e2e8f0",
+        color: "#ffffff",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -93,9 +92,7 @@ const Header = () => {
         backdropFilter: "blur(6px)",
       }}
     >
-      {/* LEFT SIDE */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {/* 👤 Profile Circle */}
         <div
           onClick={() => navigate("/user-profile")}
           style={{
@@ -121,7 +118,6 @@ const Header = () => {
           {firstName?.charAt(0)}
         </div>
 
-        {/* 👋 Greeting */}
         <div
           style={{
             fontSize: "18px",
@@ -133,7 +129,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* RIGHT SIDE */}
       <div
         style={{
           display: "flex",
@@ -142,7 +137,6 @@ const Header = () => {
           paddingRight: "35px",
         }}
       >
-        {/* 📅 Date & Time */}
         <div
           style={{
             fontSize: "16px",
@@ -158,7 +152,6 @@ const Header = () => {
           <span style={{ fontWeight: "600" }}>{formattedTime}</span>
         </div>
 
-        {/* 🏠 Home Icon */}
         <div
           onClick={handleHomeClick}
           style={{
@@ -183,10 +176,8 @@ const Header = () => {
           <FaHome color="white" size={16} />
         </div>
 
-        {/* 🔽 Role Switch */}
         <SwitchRole />
 
-        {/* 🚪 Logout */}
         <button
           onClick={handleLogout}
           style={{

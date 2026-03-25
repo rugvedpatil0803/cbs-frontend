@@ -37,3 +37,13 @@ export const updateUserProfile = async (userId: string, payload: Partial<UserPro
         throw error?.response?.data?.message || "Failed to update profile";
     }
 };
+
+export const userByList = async () => {
+    try {
+        const response = await apiClient.get(`/user/list-by-roles`);
+        return response.data.data;
+
+    } catch (error: any) {
+        throw error?.response?.data?.message || "Failed to get Users";
+    }
+};

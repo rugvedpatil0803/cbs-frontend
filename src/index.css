@@ -1,24 +1,25 @@
-* {
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;
-  margin: 0 !important;
-  padding: 0 !important;
-
-  background: linear-gradient(135deg, #0f172a, #1e3a8a, #312e81);
+.custom-scroll::-webkit-scrollbar {
+  height: 6px;
 }
 
-#root {
-  min-height: 100vh;
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.5);
+}
+
+.custom-scroll {
+  scrollbar-width: 1px; /* Firefox */
 }

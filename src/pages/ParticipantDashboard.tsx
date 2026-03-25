@@ -334,7 +334,7 @@ const ParticipantDashboard = () => {
                     marginBottom: "10px",
                 }}
             >
-                <h2>{title}</h2>
+                <h2 style={{ color: "#ffffff" }}>{title}</h2>
 
                 <button
                     onClick={() => openModal(title, data)}
@@ -361,6 +361,7 @@ const ParticipantDashboard = () => {
                         overflowX: "auto",
                         paddingBottom: "10px",
                     }}
+                    className="custom-scroll"
                 >
                     {data.slice(0, 10).map((session) => {
                         const isCompleted = title.includes("Completed");
@@ -501,7 +502,7 @@ const ParticipantDashboard = () => {
                     top: 0,
                     left: 0,
                     backdropFilter: "blur(8px)",
-                    background: "rgba(15, 23, 42, 0.6)", 
+                    background: "rgba(15, 23, 42, 0.6)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -546,450 +547,482 @@ const ParticipantDashboard = () => {
     }
 
     return (
-        <div style={{ padding: "20px", marginTop: "70px" }}>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "16px",
-                    marginBottom: "20px",
-                    flexWrap: "wrap",
-                }}
-            >
-                <h1 style={{ margin: 0 }}>🎯 Participant Dashboard</h1>
+        <>
+            <style>
+                {`
+                .custom-scroll::-webkit-scrollbar {
+                width: 6px;
+                }
 
-                <button
-                    onClick={fetchMyEnrollments}
-                    disabled={loadingEnrollments}
-                    style={{
-                        padding: "10px 16px",
-                        borderRadius: "10px",
-                        border: "none",
-                        background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-                        color: "white",
-                        fontWeight: "700",
-                        cursor: loadingEnrollments ? "wait" : "pointer",
-                        boxShadow: "0 6px 16px rgba(79, 70, 229, 0.35)",
-                    }}
-                >
-                    {loadingEnrollments ? "Loading..." : "My Enrollments"}
-                </button>
-            </div>
+                .custom-scroll::-webkit-scrollbar-track {
+                background: transparent;
+                }
 
-            {renderRow("🚀 Upcoming Sessions", upcoming)}
-            {renderRow("🔥 Ongoing Sessions", ongoing)}
-            {renderRow("✅ Completed Sessions", completed)}
+                .custom-scroll::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                }
 
-            {showModal && (
+                .custom-scroll::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.6);
+                }
+
+                .custom-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(0,0,0,0.2) transparent;
+                }
+            `}
+            </style>
+
+            <div style={{ padding: "45px", marginTop: "70px" }}>
                 <div
-                    onClick={() => setShowModal(false)}
                     style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "rgba(0,0,0,0.6)",
                         display: "flex",
-                        justifyContent: "center",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        zIndex: 1000,
+                        gap: "16px",
+                        marginBottom: "20px",
+                        flexWrap: "wrap",
+                        color: "white"
+
                     }}
                 >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
+                    <h1 style={{ margin: 0, color: "white" }}>🎯 Participant Dashboard</h1>
+
+                    <button
+                        onClick={fetchMyEnrollments}
+                        disabled={loadingEnrollments}
                         style={{
-                            width: "80%",
-                            maxHeight: "80%",
-                            overflowY: "auto",
-                            background: "#1e293b",
-                            padding: "20px",
-                            borderRadius: "12px",
+                            padding: "10px 16px",
+                            borderRadius: "10px",
+                            border: "none",
+                            background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
                             color: "white",
+                            fontWeight: "700",
+                            cursor: loadingEnrollments ? "wait" : "pointer",
+                            boxShadow: "0 6px 16px rgba(79, 70, 229, 0.35)",
                         }}
                     >
-                        <h2 style={{ marginBottom: "15px" }}>{modalTitle}</h2>
-
-                        {modalData.length === 0 ? (
-                            <p style={{ color: "#cbd5e1" }}>No Sessions For Now</p>
-                        ) : (
-                            modalData.map((session) => {
-                                const isCompleted = modalTitle.includes("Completed");
-                                const isEnrolled = enrolledSessionIds.includes(session.sessionId);
-                                const isFull = session.availableSeats === 0;
-
-                                return (
-                                    <div
-                                        key={session.sessionId}
-                                        style={{
-                                            padding: "12px",
-                                            marginBottom: "10px",
-                                            background: "#0f172a",
-                                            borderRadius: "8px",
-                                            transition: "all 0.3s ease",
-                                            cursor: "pointer",
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.boxShadow =
-                                                "0 0 0 2px #a855f7, 0 0 15px #a855f7";
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.boxShadow = "none";
-                                        }}
-                                    >
-                                        <h3>{session.name}</h3>
-                                        <p>{session.description}</p>
-                                        <p>👨‍🏫 {session.coachName}</p>
-                                        <p>
-                                            📅 {formatDate(session.startDay)} →{" "}
-                                            {formatDate(session.endDay)}
-                                        </p>
-                                        <p>
-                                            ⏰ {session.startTime} - {session.endTime}
-                                        </p>
-
-                                        {!isCompleted && (
-                                            <p>
-                                                🎟 {session.availableSeats}/{session.maxSeat}
-                                            </p>
-                                        )}
-
-                                        {!isCompleted && (
-                                            <button
-                                                disabled={isFull || isEnrolled}
-                                                onClick={() => handleEnroll(session.sessionId)}
-                                                style={{
-                                                    marginTop: "10px",
-                                                    padding: "8px 14px",
-                                                    borderRadius: "8px",
-                                                    border: "none",
-                                                    background: isEnrolled
-                                                        ? "linear-gradient(135deg, #8b5cf6, #7c3aed)"
-                                                        : isFull
-                                                            ? "#64748b"
-                                                            : "linear-gradient(135deg, #22c55e, #16a34a)",
-                                                    color: "white",
-                                                    fontWeight: "600",
-                                                    cursor: isFull || isEnrolled ? "not-allowed" : "pointer",
-                                                }}
-                                            >
-                                                {isEnrolled ? "Enrolled" : isFull ? "Full" : "Enroll"}
-                                            </button>
-                                        )}
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
+                        {loadingEnrollments ? "Loading..." : "My Enrollments"}
+                    </button>
                 </div>
-            )}
 
-            {showEnrollmentsModal && (
-                <div
-                    onClick={() => setShowEnrollmentsModal(false)}
-                    style={{
-                        position: "fixed",
-                        top: 20,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 200,
-                    }}
-                >
+                {renderRow("🚀 Upcoming Sessions", upcoming)}
+                {renderRow("🔥 Ongoing Sessions", ongoing)}
+                {renderRow("✅ Completed Sessions", completed)}
+
+                {showModal && (
                     <div
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => setShowModal(false)}
                         style={{
-                            width: "90%",
-                            maxWidth: "1100px",
-                            maxHeight: "85%",
-                            overflowY: "auto",
-                            background: "#0f172a",
-                            padding: "22px",
-                            borderRadius: "14px",
-                            color: "white",
-                            boxShadow: "0 20px 50px rgba(0,0,0,0.45)",
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 1000,
                         }}
                     >
                         <div
+                            onClick={(e) => e.stopPropagation()}
                             style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: "18px",
-                                gap: "12px",
-                                flexWrap: "wrap",
+                                width: "80%",
+                                maxHeight: "80%",
+                                overflowY: "auto",
+                                background: "#1e293b",
+                                padding: "20px",
+                                borderRadius: "12px",
+                                color: "white",
                             }}
+                            className="custom-scroll"
                         >
-                            <h2 style={{ margin: 0 }}>My Enrollments</h2>
-                            <button
-                                onClick={() => setShowEnrollmentsModal(false)}
-                                style={{
-                                    padding: "8px 14px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background: "#334155",
-                                    color: "white",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Close
-                            </button>
-                        </div>
+                            <h2 style={{ marginBottom: "15px", color: "white" }}>{modalTitle}</h2>
 
-                        {myEnrollments.length === 0 ? (
-                            <p style={{ color: "#cbd5e1" }}>No enrollments found.</p>
-                        ) : (
-                            myEnrollments.map((booking) => {
-                                const status = getBookingStatus(booking);
-                                const isUnrolled = unrolledBookingIds.includes(
-                                    booking.bookingId
-                                );
-                                const canUnenroll =
-                                    status === "Upcoming" || status === "Ongoing";
-                                const isCompleted = status === "Completed";
-                                const existingFeedback = myFeedbacks.find(
-                                    (f) => f.sessionId === booking.sessionId
-                                );
+                            {modalData.length === 0 ? (
+                                <p style={{ color: "#cbd5e1" }}>No Sessions For Now</p>
+                            ) : (
+                                modalData.map((session) => {
+                                    const isCompleted = modalTitle.includes("Completed");
+                                    const isEnrolled = enrolledSessionIds.includes(session.sessionId);
+                                    const isFull = session.availableSeats === 0;
 
-                                return (
-                                    <div
-                                        key={booking.bookingId}
-                                        style={{
-                                            background: "#1e293b",
-                                            borderRadius: "12px",
-                                            padding: "16px",
-                                            marginBottom: "14px",
-                                            border: "1px solid #334155",
-                                        }}
-                                    >
+                                    return (
                                         <div
+                                            key={session.sessionId}
                                             style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "start",
-                                                gap: "12px",
-                                                flexWrap: "wrap",
+                                                padding: "12px",
                                                 marginBottom: "10px",
+                                                background: "#0f172a",
+                                                borderRadius: "8px",
+                                                transition: "all 0.3s ease",
+                                                cursor: "pointer",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.boxShadow =
+                                                    "0 0 0 2px #a855f7, 0 0 15px #a855f7";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.boxShadow = "none";
                                             }}
                                         >
-                                            <div>
-                                                <h3 style={{ margin: "0 0 6px 0" }}>
-                                                    {booking.sessionName}
-                                                </h3>
-                                                <div
-                                                    style={{
-                                                        display: "inline-block",
-                                                        padding: "4px 10px",
-                                                        borderRadius: "999px",
-                                                        fontSize: "12px",
-                                                        fontWeight: 700,
-                                                        ...statusBadgeStyle(isUnrolled ? "Unrolled" : status),
-                                                    }}
-                                                >
-                                                    {isUnrolled ? "Unrolled" : status}
-                                                </div>
-                                            </div>
+                                            <h3>{session.name}</h3>
+                                            <p>{session.description}</p>
+                                            <p>👨‍🏫 {session.coachName}</p>
+                                            <p>
+                                                📅 {formatDate(session.startDay)} →{" "}
+                                                {formatDate(session.endDay)}
+                                            </p>
+                                            <p>
+                                                ⏰ {session.startTime} - {session.endTime}
+                                            </p>
 
-                                            {canUnenroll && !isUnrolled && (
-                                                <button
-                                                    onClick={() => handleUnenroll(booking)}
-                                                    style={{
-                                                        padding: "10px 16px",
-                                                        borderRadius: "8px",
-                                                        border: "none",
-                                                        background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                                                        color: "white",
-                                                        fontWeight: 700,
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Unenroll
-                                                </button>
+                                            {!isCompleted && (
+                                                <p>
+                                                    🎟 {session.availableSeats}/{session.maxSeat}
+                                                </p>
                                             )}
 
-                                            {isUnrolled && (
+                                            {!isCompleted && (
                                                 <button
-                                                    disabled
+                                                    disabled={isFull || isEnrolled}
+                                                    onClick={() => handleEnroll(session.sessionId)}
                                                     style={{
-                                                        padding: "10px 16px",
+                                                        marginTop: "10px",
+                                                        padding: "8px 14px",
                                                         borderRadius: "8px",
                                                         border: "none",
-                                                        background: "#7c3aed",
+                                                        background: isEnrolled
+                                                            ? "linear-gradient(135deg, #8b5cf6, #7c3aed)"
+                                                            : isFull
+                                                                ? "#64748b"
+                                                                : "linear-gradient(135deg, #22c55e, #16a34a)",
                                                         color: "white",
-                                                        fontWeight: 700,
-                                                        cursor: "not-allowed",
+                                                        fontWeight: "600",
+                                                        cursor: isFull || isEnrolled ? "not-allowed" : "pointer",
                                                     }}
                                                 >
-                                                    Unrolled
-                                                </button>
-                                            )}
-
-                                            {isCompleted && !isUnrolled && !existingFeedback && (
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedSessionId(booking.sessionId);
-                                                        setShowFeedbackModal(true);
-                                                    }}
-                                                    style={{
-                                                        padding: "10px 16px",
-                                                        borderRadius: "8px",
-                                                        border: "none",
-                                                        background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                                                        color: "white",
-                                                        fontWeight: 700,
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Give Feedback
+                                                    {isEnrolled ? "Enrolled" : isFull ? "Full" : "Enroll"}
                                                 </button>
                                             )}
                                         </div>
-
-                                        <p style={{ margin: "6px 0" }}>{booking.sessionDescription}</p>
-                                        <p style={{ margin: "6px 0" }}>👨‍🏫 {booking.coachName}</p>
-                                        <p style={{ margin: "6px 0" }}>
-                                            📅 {formatDate(booking.startDay)} →{" "}
-                                            {formatDate(booking.endDay)}
-                                        </p>
-                                        <p style={{ margin: "6px 0" }}>
-                                            ⏰ {booking.startTime} - {booking.endTime}
-                                        </p>
-
-                                        {existingFeedback && (
-                                            <div
-                                                style={{
-                                                    marginTop: "12px",
-                                                    padding: "10px",
-                                                    background: "rgb(49 55 83)",
-                                                    borderRadius: "8px",
-                                                    border: "1px solid #334155",
-                                                }}
-                                            >
-                                                <p style={{ margin: 0, fontSize: "13px", color: "#facc15" }}>
-                                                    ⭐ {existingFeedback.rating} / 5
-                                                </p>
-                                                <p
-                                                    style={{
-                                                        margin: "4px 0 0 0",
-                                                        fontSize: "12px",
-                                                        color: "#cbd5e1",
-                                                    }}
-                                                >
-                                                    {existingFeedback.feedbackDesc}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })
-                        )}
+                                    );
+                                })
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {showFeedbackModal && (
-                <div
-                    onClick={closeFeedbackModal}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 4000,
-                    }}
-                >
+                {showEnrollmentsModal && (
                     <div
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => setShowEnrollmentsModal(false)}
                         style={{
-                            width: "400px",
-                            background: "#0f172a",
-                            padding: "20px",
-                            borderRadius: "12px",
-                            color: "white",
+                            position: "fixed",
+                            top: 20,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 200,
                         }}
                     >
-                        <h2>Submit Feedback</h2>
-
-                        <div style={{ marginTop: "10px" }}>
-                            <label>Rating (1–5)</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="5"
-                                value={rating}
-                                onChange={(e) => setRating(Number(e.target.value))}
-                                style={{
-                                    width: "100%",
-                                    marginTop: "5px",
-                                    padding: "8px",
-                                    borderRadius: "6px",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginTop: "12px" }}>
-                            <label>Feedback</label>
-                            <textarea
-                                value={feedbackDesc}
-                                onChange={(e) => setFeedbackDesc(e.target.value)}
-                                rows={4}
-                                style={{
-                                    width: "100%",
-                                    marginTop: "5px",
-                                    padding: "8px",
-                                    borderRadius: "6px",
-                                }}
-                            />
-                        </div>
-
                         <div
+                            onClick={(e) => e.stopPropagation()}
                             style={{
-                                marginTop: "16px",
-                                display: "flex",
-                                justifyContent: "space-between",
+                                width: "90%",
+                                maxWidth: "1100px",
+                                maxHeight: "85%",
+                                overflowY: "auto",
+                                background: "#0f172a",
+                                padding: "22px",
+                                borderRadius: "14px",
+                                color: "white",
+                                boxShadow: "0 20px 50px rgba(0,0,0,0.45)",
                             }}
+                            className="custom-scroll"
                         >
-                            <button
-                                onClick={closeFeedbackModal}
+                            <div
                                 style={{
-                                    padding: "8px 12px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "#334155",
-                                    color: "white",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "18px",
+                                    gap: "12px",
+                                    flexWrap: "wrap",
                                 }}
                             >
-                                Cancel
-                            </button>
+                                <h2 style={{ margin: 0 }}>My Enrollments</h2>
+                                <button
+                                    onClick={() => setShowEnrollmentsModal(false)}
+                                    style={{
+                                        padding: "8px 14px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background: "#334155",
+                                        color: "white",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Close
+                                </button>
+                            </div>
 
-                            <button
-                                onClick={handleSubmitFeedback}
-                                style={{
-                                    padding: "8px 12px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                                    color: "white",
-                                    fontWeight: "600",
-                                }}
-                            >
-                                Submit
-                            </button>
+                            {myEnrollments.length === 0 ? (
+                                <p style={{ color: "#cbd5e1" }}>No enrollments found.</p>
+                            ) : (
+                                myEnrollments.map((booking) => {
+                                    const status = getBookingStatus(booking);
+                                    const isUnrolled = unrolledBookingIds.includes(
+                                        booking.bookingId
+                                    );
+                                    const canUnenroll =
+                                        status === "Upcoming" || status === "Ongoing";
+                                    const isCompleted = status === "Completed";
+                                    const existingFeedback = myFeedbacks.find(
+                                        (f) => f.sessionId === booking.sessionId
+                                    );
+
+                                    return (
+                                        <div
+                                            key={booking.bookingId}
+                                            style={{
+                                                background: "#1e293b",
+                                                borderRadius: "12px",
+                                                padding: "16px",
+                                                marginBottom: "14px",
+                                                border: "1px solid #334155",
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "start",
+                                                    gap: "12px",
+                                                    flexWrap: "wrap",
+                                                    marginBottom: "10px",
+                                                }}
+                                            >
+                                                <div>
+                                                    <h3 style={{ margin: "0 0 6px 0" }}>
+                                                        {booking.sessionName}
+                                                    </h3>
+                                                    <div
+                                                        style={{
+                                                            display: "inline-block",
+                                                            padding: "4px 10px",
+                                                            borderRadius: "999px",
+                                                            fontSize: "12px",
+                                                            fontWeight: 700,
+                                                            ...statusBadgeStyle(isUnrolled ? "Unrolled" : status),
+                                                        }}
+                                                    >
+                                                        {isUnrolled ? "Unrolled" : status}
+                                                    </div>
+                                                </div>
+
+                                                {canUnenroll && !isUnrolled && (
+                                                    <button
+                                                        onClick={() => handleUnenroll(booking)}
+                                                        style={{
+                                                            padding: "10px 16px",
+                                                            borderRadius: "8px",
+                                                            border: "none",
+                                                            background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                                                            color: "white",
+                                                            fontWeight: 700,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Unenroll
+                                                    </button>
+                                                )}
+
+                                                {isUnrolled && (
+                                                    <button
+                                                        disabled
+                                                        style={{
+                                                            padding: "10px 16px",
+                                                            borderRadius: "8px",
+                                                            border: "none",
+                                                            background: "#7c3aed",
+                                                            color: "white",
+                                                            fontWeight: 700,
+                                                            cursor: "not-allowed",
+                                                        }}
+                                                    >
+                                                        Unrolled
+                                                    </button>
+                                                )}
+
+                                                {isCompleted && !isUnrolled && !existingFeedback && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedSessionId(booking.sessionId);
+                                                            setShowFeedbackModal(true);
+                                                        }}
+                                                        style={{
+                                                            padding: "10px 16px",
+                                                            borderRadius: "8px",
+                                                            border: "none",
+                                                            background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                                                            color: "white",
+                                                            fontWeight: 700,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Give Feedback
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <p style={{ margin: "6px 0" }}>{booking.sessionDescription}</p>
+                                            <p style={{ margin: "6px 0" }}>👨‍🏫 {booking.coachName}</p>
+                                            <p style={{ margin: "6px 0" }}>
+                                                📅 {formatDate(booking.startDay)} →{" "}
+                                                {formatDate(booking.endDay)}
+                                            </p>
+                                            <p style={{ margin: "6px 0" }}>
+                                                ⏰ {booking.startTime} - {booking.endTime}
+                                            </p>
+
+                                            {existingFeedback && (
+                                                <div
+                                                    style={{
+                                                        marginTop: "12px",
+                                                        padding: "10px",
+                                                        background: "rgb(49 55 83)",
+                                                        borderRadius: "8px",
+                                                        border: "1px solid #334155",
+                                                    }}
+                                                >
+                                                    <p style={{ margin: 0, fontSize: "13px", color: "#facc15" }}>
+                                                        ⭐ {existingFeedback.rating} / 5
+                                                    </p>
+                                                    <p
+                                                        style={{
+                                                            margin: "4px 0 0 0",
+                                                            fontSize: "12px",
+                                                            color: "#cbd5e1",
+                                                        }}
+                                                    >
+                                                        {existingFeedback.feedbackDesc}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+
+                {showFeedbackModal && (
+                    <div
+                        onClick={closeFeedbackModal}
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 4000,
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                width: "400px",
+                                background: "#0f172a",
+                                padding: "20px",
+                                borderRadius: "12px",
+                                color: "white",
+                            }}
+                        >
+                            <h2>Submit Feedback</h2>
+
+                            <div style={{ marginTop: "10px" }}>
+                                <label>Rating (1–5)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    value={rating}
+                                    onChange={(e) => setRating(Number(e.target.value))}
+                                    style={{
+                                        width: "100%",
+                                        marginTop: "5px",
+                                        padding: "8px",
+                                        borderRadius: "6px",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginTop: "12px" }}>
+                                <label>Feedback</label>
+                                <textarea
+                                    value={feedbackDesc}
+                                    onChange={(e) => setFeedbackDesc(e.target.value)}
+                                    rows={4}
+                                    style={{
+                                        width: "100%",
+                                        marginTop: "5px",
+                                        padding: "8px",
+                                        borderRadius: "6px",
+                                    }}
+                                />
+                            </div>
+
+                            <div
+                                style={{
+                                    marginTop: "16px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <button
+                                    onClick={closeFeedbackModal}
+                                    style={{
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        border: "none",
+                                        background: "#334155",
+                                        color: "white",
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    onClick={handleSubmitFeedback}
+                                    style={{
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        border: "none",
+                                        background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                                        color: "white",
+                                        fontWeight: "600",
+                                    }}
+                                >
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 

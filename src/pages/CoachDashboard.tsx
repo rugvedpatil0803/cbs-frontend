@@ -436,7 +436,7 @@ const CoachDashboard = () => {
                     gap: "12px",
                 }}
             >
-                <h2 style={{ margin: 0 }}>{title}</h2>
+                <h2 style={{ color: "white" }}>{title}</h2>
 
                 <button
                     onClick={() => openModal(title, data)}
@@ -453,7 +453,8 @@ const CoachDashboard = () => {
                 </button>
             </div>
 
-            <div style={{ display: "flex", gap: "15px", overflowX: "auto", paddingBottom: "10px" }}>
+            <div style={{ display: "flex", gap: "15px", overflowX: "auto", paddingBottom: "10px" }}
+                className="custom-scroll">
                 {data.length === 0 ? (
                     <p style={{ color: "#94a3b8" }}>No sessions</p>
                 ) : (
@@ -543,7 +544,7 @@ const CoachDashboard = () => {
                     top: 0,
                     left: 0,
                     backdropFilter: "blur(8px)",
-                    background: "rgba(15, 23, 42, 0.6)", 
+                    background: "rgba(15, 23, 42, 0.6)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -590,576 +591,608 @@ const CoachDashboard = () => {
     const today = getTodayDate();
 
     return (
-        <div style={{ padding: "20px", marginTop: "70px" }}>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "20px",
-                    flexWrap: "wrap",
-                    gap: "12px",
-                }}
-            >
-                <h1 style={{ margin: 0 }}>🏋️ Coach Dashboard</h1>
+        <>
+            <style>
+                {`
+                .custom-scroll::-webkit-scrollbar {
+                width: 6px;
+                }
 
-                <button
-                    onClick={openCreateModal}
-                    style={{
-                        padding: "10px 16px",
-                        borderRadius: "10px",
-                        border: "none",
-                        background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                        color: "white",
-                        fontWeight: "700",
-                        cursor: "pointer",
-                        boxShadow: "0 6px 16px rgba(34,197,94,0.35)",
-                    }}
-                >
-                    + Create Session
-                </button>
-            </div>
+                .custom-scroll::-webkit-scrollbar-track {
+                background: transparent;
+                }
 
-            {renderRow("🚀 Upcoming Sessions", upcoming)}
-            {renderRow("🔥 Ongoing Sessions", ongoing)}
-            {renderRow("✅ Completed Sessions", completed)}
+                .custom-scroll::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                }
 
-            {showModal && (
+                .custom-scroll::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.6);
+                }
+
+                .custom-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(0,0,0,0.2) transparent;
+                }
+            `}
+            </style>
+
+
+            <div style={{ padding: "45px", marginTop: "70px" }}>
                 <div
-                    onClick={() => setShowModal(false)}
                     style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.6)",
                         display: "flex",
-                        justifyContent: "center",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        zIndex: 1000,
+                        marginBottom: "20px",
+                        flexWrap: "wrap",
+                        gap: "12px",
+                        color: "white"
                     }}
                 >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
+                    <h1 style={{ margin: 0 }}>🏋️ Coach Dashboard</h1>
+
+                    <button
+                        onClick={openCreateModal}
                         style={{
-                            width: "80%",
-                            maxHeight: "80%",
-                            overflowY: "auto",
-                            background: "#1e293b",
-                            padding: "20px",
-                            borderRadius: "12px",
+                            padding: "10px 16px",
+                            borderRadius: "10px",
+                            border: "none",
+                            background: "linear-gradient(135deg, #187a3c, #237240)",
                             color: "white",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            boxShadow: "0 6px 16px rgba(34,197,94,0.35)",
                         }}
                     >
-                        <h2 style={{ marginTop: 0 }}>{modalTitle}</h2>
+                        + Create Session
+                    </button>
+                </div>
 
-                        {modalData.length === 0 ? (
-                            <p>No sessions</p>
-                        ) : (
-                            modalData.map((session) => (
-                                <div
-                                    key={session.sessionId}
-                                    style={{
-                                        marginBottom: "10px",
-                                        padding: "12px",
-                                        background: "#0f172a",
-                                        borderRadius: "8px",
-                                    }}
-                                >
-                                    <h3>{session.name}</h3>
-                                    <p>👥 {session.occupiedSeats}/{session.maxSeat} booked</p>
+                {renderRow("🚀 Upcoming Sessions", upcoming)}
+                {renderRow("🔥 Ongoing Sessions", ongoing)}
+                {renderRow("✅ Completed Sessions", completed)}
 
+                {showModal && (
+                    <div
+                        onClick={() => setShowModal(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 1000,
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                width: "80%",
+                                maxHeight: "80%",
+                                overflowY: "auto",
+                                background: "#1e293b",
+                                padding: "20px",
+                                borderRadius: "12px",
+                                color: "white",
+                            }}
+                            className="custom-scroll"
+                        >
+                            <h2 style={{ marginTop: 0 }}>{modalTitle}</h2>
+
+                            {modalData.length === 0 ? (
+                                <p>No sessions</p>
+                            ) : (
+                                modalData.map((session) => (
                                     <div
+                                        key={session.sessionId}
                                         style={{
-                                            display: "flex",
-                                            gap: "10px",
-                                            marginTop: "12px",
-                                            flexWrap: "wrap",
+                                            marginBottom: "10px",
+                                            padding: "12px",
+                                            background: "#0f172a",
+                                            borderRadius: "8px",
                                         }}
                                     >
-                                        <button
-                                            onClick={() =>
-                                                handleViewParticipants(session.sessionId, session.name)
-                                            }
-                                            style={{
-                                                padding: "8px 12px",
-                                                borderRadius: "8px",
-                                                border: "none",
-                                                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-                                                color: "white",
-                                                fontWeight: 700,
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            View Participants
-                                        </button>
+                                        <h3>{session.name}</h3>
+                                        <p>👥 {session.occupiedSeats}/{session.maxSeat} booked</p>
 
-                                        <button
-                                            onClick={() => openEditModal(session)}
+                                        <div
                                             style={{
-                                                padding: "8px 12px",
-                                                borderRadius: "8px",
-                                                border: "none",
-                                                background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                                                color: "white",
-                                                fontWeight: 700,
-                                                cursor: "pointer",
+                                                display: "flex",
+                                                gap: "10px",
+                                                marginTop: "12px",
+                                                flexWrap: "wrap",
                                             }}
                                         >
-                                            Edit
-                                        </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleViewParticipants(session.sessionId, session.name)
+                                                }
+                                                style={{
+                                                    padding: "8px 12px",
+                                                    borderRadius: "8px",
+                                                    border: "none",
+                                                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                                                    color: "white",
+                                                    fontWeight: 700,
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                View Participants
+                                            </button>
+
+                                            <button
+                                                onClick={() => openEditModal(session)}
+                                                style={{
+                                                    padding: "8px 12px",
+                                                    borderRadius: "8px",
+                                                    border: "none",
+                                                    background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                                                    color: "white",
+                                                    fontWeight: 700,
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {showParticipantsModal && (
-                <div
-                    onClick={() => setShowParticipantsModal(false)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 2000,
-                    }}
-                >
+                {showParticipantsModal && (
                     <div
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => setShowParticipantsModal(false)}
                         style={{
-                            width: "90%",
-                            maxWidth: "900px",
-                            maxHeight: "80%",
-                            overflowY: "auto",
-                            background: "#0f172a",
-                            padding: "20px",
-                            borderRadius: "12px",
-                            color: "white",
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 2000,
                         }}
                     >
-                        <h2 style={{ marginTop: 0 }}>Participants - {selectedSession}</h2>
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                width: "90%",
+                                maxWidth: "900px",
+                                maxHeight: "80%",
+                                overflowY: "auto",
+                                background: "#0f172a",
+                                padding: "20px",
+                                borderRadius: "12px",
+                                color: "white",
+                            }}
+                            className="custom-scroll"
+                        >
+                            <h2 style={{ marginTop: 0 }}>Participants - {selectedSession}</h2>
 
-                        {participants.length === 0 ? (
-                            <p>No participants</p>
-                        ) : (
-                            participants.map((p) => (
-                                <div
-                                    key={p.bookingId}
+                            {participants.length === 0 ? (
+                                <p>No participants</p>
+                            ) : (
+                                participants.map((p) => (
+                                    <div
+                                        key={p.bookingId}
+                                        style={{
+                                            padding: "12px",
+                                            marginBottom: "10px",
+                                            background: "#1e293b",
+                                            borderRadius: "8px",
+                                        }}
+                                    >
+                                        <h3>
+                                            {p.firstName} {p.lastName}
+                                        </h3>
+                                        <p>📧 {p.email}</p>
+                                        <p>📞 {p.contactNumber}</p>
+                                        <p>📍 {p.address}</p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {showCreateModal && (
+                    <div
+                        onClick={() => setShowCreateModal(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 3,
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                width: "420px",
+                                background: "#0f172a",
+                                borderRadius: "16px",
+                                color: "white",
+                                padding: "24px",
+                                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                            }}
+                        >
+                            <h2 style={{ marginBottom: "16px" }}>Create Session</h2>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>Name <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
                                     style={{
-                                        padding: "12px",
-                                        marginBottom: "10px",
-                                        background: "#1e293b",
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
                                         borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>Description <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="text"
+                                    value={formData.description}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, description: e.target.value })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>Start Day <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="date"
+                                    min={today}
+                                    value={formData.startDay}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, startDay: e.target.value })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>End Day <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="date"
+                                    min={getEndDayMin()}
+                                    value={formData.endDay}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, endDay: e.target.value })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>Start Time <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="time"
+                                    min={getStartTimeMin()}
+                                    value={formData.startTime}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, startTime: e.target.value })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>End Time <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="time"
+                                    min={getEndTimeMin()}
+                                    value={formData.endTime}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, endTime: e.target.value })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "14px" }}>
+                                <label>Seats <span style={{ color: "red" }}>*</span></label>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={formData.noOfSeats}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            noOfSeats: Math.max(1, Number(e.target.value)),
+                                        })
+                                    }
+                                    style={{
+                                        width: "95%",
+                                        marginTop: "6px",
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #334155",
+                                        background: "#163c55",
+                                        color: "white",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+
+                            <div
+                                style={{
+                                    marginTop: "18px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    gap: "10px",
+                                }}
+                            >
+                                <button
+                                    onClick={() => setShowCreateModal(false)}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background: "#334155",
+                                        color: "white",
+                                        cursor: "pointer",
                                     }}
                                 >
-                                    <h3>
-                                        {p.firstName} {p.lastName}
-                                    </h3>
-                                    <p>📧 {p.email}</p>
-                                    <p>📞 {p.contactNumber}</p>
-                                    <p>📍 {p.address}</p>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-            )}
+                                    Cancel
+                                </button>
 
-            {showCreateModal && (
-                <div
-                    onClick={() => setShowCreateModal(false)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 3,
-                    }}
-                >
+                                <button
+                                    onClick={handleCreateSession}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                                        color: "white",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showEditModal && (
                     <div
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={() => setShowEditModal(false)}
                         style={{
-                            width: "420px",
-                            background: "#0f172a",
-                            borderRadius: "16px",
-                            color: "white",
-                            padding: "24px",
-                            boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-                            border: "1px solid rgba(255,255,255,0.1)",
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.6)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 3,
                         }}
                     >
-                        <h2 style={{ marginBottom: "16px" }}>Create Session</h2>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>Name <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="text"
-                                value={formData.name}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, name: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>Description <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="text"
-                                value={formData.description}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, description: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>Start Day <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="date"
-                                min={today}
-                                value={formData.startDay}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, startDay: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>End Day <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="date"
-                                min={getEndDayMin()}
-                                value={formData.endDay}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, endDay: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>Start Time <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="time"
-                                min={getStartTimeMin()}
-                                value={formData.startTime}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, startTime: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>End Time <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="time"
-                                min={getEndTimeMin()}
-                                value={formData.endTime}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, endTime: e.target.value })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: "14px" }}>
-                            <label>Seats <span style={{ color: "red" }}>*</span></label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={formData.noOfSeats}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        noOfSeats: Math.max(1, Number(e.target.value)),
-                                    })
-                                }
-                                style={{
-                                    width: "95%",
-                                    marginTop: "6px",
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "1px solid #334155",
-                                    background: "#020617",
-                                    color: "white",
-                                    outline: "none",
-                                }}
-                            />
-                        </div>
-
                         <div
+                            onClick={(e) => e.stopPropagation()}
                             style={{
-                                marginTop: "18px",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                gap: "10px",
+                                width: "420px",
+                                background: "#0f172a",
+                                borderRadius: "16px",
+                                color: "white",
+                                padding: "24px",
+                                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+                                border: "1px solid rgba(255,255,255,0.1)",
                             }}
                         >
-                            <button
-                                onClick={() => setShowCreateModal(false)}
-                                style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background: "#334155",
-                                    color: "white",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Cancel
-                            </button>
+                            <h2 style={{ marginBottom: "16px" }}>Edit Session</h2>
 
-                            <button
-                                onClick={handleCreateSession}
-                                style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Create
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                            {[
+                                { label: "Name", key: "name" },
+                                { label: "Description", key: "description" },
+                                { label: "Start Day", key: "startDay", type: "date" },
+                                { label: "End Day", key: "endDay", type: "date" },
+                                { label: "Start Time", key: "startTime", type: "time" },
+                                { label: "End Time", key: "endTime", type: "time" },
+                                { label: "Seats", key: "noOfSeats", type: "number" },
+                            ].map((field) => {
+                                const today = new Date().toISOString().split("T")[0];
 
-            {showEditModal && (
-                <div
-                    onClick={() => setShowEditModal(false)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.6)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 3,
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            width: "420px",
-                            background: "#0f172a",
-                            borderRadius: "16px",
-                            color: "white",
-                            padding: "24px",
-                            boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                        }}
-                    >
-                        <h2 style={{ marginBottom: "16px" }}>Edit Session</h2>
+                                const minStartTime =
+                                    editFormData.startDay === today
+                                        ? new Date(Date.now() + 60 * 60 * 1000)
+                                            .toTimeString()
+                                            .slice(0, 5)
+                                        : "00:00";
 
-                        {[
-                            { label: "Name", key: "name" },
-                            { label: "Description", key: "description" },
-                            { label: "Start Day", key: "startDay", type: "date" },
-                            { label: "End Day", key: "endDay", type: "date" },
-                            { label: "Start Time", key: "startTime", type: "time" },
-                            { label: "End Time", key: "endTime", type: "time" },
-                            { label: "Seats", key: "noOfSeats", type: "number" },
-                        ].map((field) => {
-                            const today = new Date().toISOString().split("T")[0];
+                                const minEndDay = editFormData.startDay || today;
 
-                            const minStartTime =
-                                editFormData.startDay === today
-                                    ? new Date(Date.now() + 60 * 60 * 1000)
-                                        .toTimeString()
-                                        .slice(0, 5)
-                                    : "00:00";
+                                let minEndTime = "00:00";
+                                if (
+                                    editFormData.startDay &&
+                                    editFormData.endDay &&
+                                    editFormData.startDay === editFormData.endDay
+                                ) {
+                                    const start = new Date(
+                                        `2000-01-01T${editFormData.startTime || "00:00"}`
+                                    );
+                                    start.setHours(start.getHours() + 1);
+                                    minEndTime = start.toTimeString().slice(0, 5);
+                                }
 
-                            const minEndDay = editFormData.startDay || today;
+                                return (
+                                    <div key={field.key} style={{ marginBottom: "14px" }}>
+                                        <label>
+                                            {field.label} <span style={{ color: "red" }}>*</span>
+                                        </label>
 
-                            let minEndTime = "00:00";
-                            if (
-                                editFormData.startDay &&
-                                editFormData.endDay &&
-                                editFormData.startDay === editFormData.endDay
-                            ) {
-                                const start = new Date(
-                                    `2000-01-01T${editFormData.startTime || "00:00"}`
+                                        <input
+                                            type={field.type || "text"}
+                                            min={
+                                                field.key === "startDay"
+                                                    ? today
+                                                    : field.key === "endDay"
+                                                        ? minEndDay
+                                                        : field.key === "startTime"
+                                                            ? minStartTime
+                                                            : field.key === "endTime"
+                                                                ? minEndTime
+                                                                : field.key === "noOfSeats"
+                                                                    ? 1
+                                                                    : undefined
+                                            }
+                                            value={(editFormData as any)[field.key]}
+                                            onChange={(e) =>
+                                                setEditFormData({
+                                                    ...editFormData,
+                                                    [field.key]:
+                                                        field.key === "noOfSeats"
+                                                            ? Math.max(1, Number(e.target.value))
+                                                            : e.target.value,
+                                                })
+                                            }
+                                            style={{
+                                                width: "96%",
+                                                marginTop: "6px",
+                                                padding: "10px",
+                                                borderRadius: "8px",
+                                                border: "1px solid #334155",
+                                                background: "#334155",
+                                                color: "white",
+                                                outline: "none",
+                                            }}
+                                        />
+                                    </div>
                                 );
-                                start.setHours(start.getHours() + 1);
-                                minEndTime = start.toTimeString().slice(0, 5);
-                            }
+                            })}
 
-                            return (
-                                <div key={field.key} style={{ marginBottom: "14px" }}>
-                                    <label>
-                                        {field.label} <span style={{ color: "red" }}>*</span>
-                                    </label>
-
-                                    <input
-                                        type={field.type || "text"}
-                                        min={
-                                            field.key === "startDay"
-                                                ? today
-                                                : field.key === "endDay"
-                                                    ? minEndDay
-                                                    : field.key === "startTime"
-                                                        ? minStartTime
-                                                        : field.key === "endTime"
-                                                            ? minEndTime
-                                                            : field.key === "noOfSeats"
-                                                                ? 1
-                                                                : undefined
-                                        }
-                                        value={(editFormData as any)[field.key]}
-                                        onChange={(e) =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                [field.key]:
-                                                    field.key === "noOfSeats"
-                                                        ? Math.max(1, Number(e.target.value))
-                                                        : e.target.value,
-                                            })
-                                        }
-                                        style={{
-                                            width: "96%",
-                                            marginTop: "6px",
-                                            padding: "10px",
-                                            borderRadius: "8px",
-                                            border: "1px solid #334155",
-                                            background: "#020617",
-                                            color: "white",
-                                            outline: "none",
-                                        }}
-                                    />
-                                </div>
-                            );
-                        })}
-
-                        {/* BUTTONS */}
-                        <div
-                            style={{
-                                marginTop: "18px",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                gap: "10px",
-                            }}
-                        >
-                            <button
-                                onClick={() => setShowEditModal(false)}
+                            {/* BUTTONS */}
+                            <div
                                 style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background: "#334155",
-                                    color: "white",
-                                    cursor: "pointer",
+                                    marginTop: "18px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    gap: "10px",
                                 }}
                             >
-                                Cancel
-                            </button>
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background: "#334155",
+                                        color: "white",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Cancel
+                                </button>
 
-                            <button
-                                onClick={handleDeleteSession}
-                                style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Delete
-                            </button>
+                                <button
+                                    onClick={handleDeleteSession}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                                        color: "white",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Delete
+                                </button>
 
-                            <button
-                                onClick={handleUpdateSession}
-                                style={{
-                                    flex: 1,
-                                    padding: "10px",
-                                    borderRadius: "8px",
-                                    border: "none",
-                                    background:
-                                        "linear-gradient(135deg, #22c55e, #16a34a)",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Update
-                            </button>
+                                <button
+                                    onClick={handleUpdateSession}
+                                    style={{
+                                        flex: 1,
+                                        padding: "10px",
+                                        borderRadius: "8px",
+                                        border: "none",
+                                        background:
+                                            "linear-gradient(135deg, #22c55e, #16a34a)",
+                                        color: "white",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Update
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+        </>
     );
 };
 

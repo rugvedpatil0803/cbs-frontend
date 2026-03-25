@@ -5,11 +5,12 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CoachDashboard from "./pages/CoachDashboard";
 import ParticipantDashboard from "./pages/ParticipantDashboard";
 import UserProfile from "./pages/UserProfile";
-
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleProtectedRoute from "./routes/RoleProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register";
+import UserManagement from "./pages/UserManagement";
 
 function App() {
   return (
@@ -18,6 +19,16 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
+      {/* 🔒 ADMIN ONLY ROUTE */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<RoleProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/user-management" element={<UserManagement />} />
+          </Route>
+        </Route>
+      </Route>
+
+      {/* 🔒 NORMAL DASHBOARD ROUTES */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
